@@ -1,8 +1,4 @@
-<html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-        <script type="text/javascript">
-            var gl;
+var gl;
             function startGL()
             {
                 alert("StartGL");
@@ -56,24 +52,15 @@
 
                 //Położenie wierzchołków
                 let vertexPosition = [
-                    //top
-                    -1.0, +1.0, -1.0,   -1.0, +1.0, +1.0,   +1.0, +1.0, +1.0,
-                    -1.0, +1.0, -1.0,   +1.0, +1.0, +1.0,   +1.0, +1.0, -1.0,
-                    //left
-                    -1.0, -1.0, +1.0,   -1.0, +1.0, +1.0,   -1.0, -1.0, -1.0,
-                    -1.0, -1.0, -1.0,   -1.0, +1.0, +1.0,   -1.0, +1.0, -1.0,
-                    //right
-                    +1.0, +1.0, +1.0,  +1.0, -1.0, +1.0,  +1.0, -1.0, -1.0,
-                    +1.0, +1.0, +1.0,  +1.0, -1.0, -1.0,  +1.0, +1.0, -1.0,
-                    //front
-                    +1.0, -1.0, +1.0,  +1.0, +1.0, +1.0,  -1.0, -1.0, +1.0,
-                    -1.0, +1.0, +1.0,  -1.0, -1.0, +1.0,  +1.0, +1.0, +1.0,
-                    //back
-                    +1.0, +1.0, -1.0,  +1.0, -1.0, -1.0,  -1.0, -1.0, -1.0,
-                    +1.0, +1.0, -1.0,  -1.0, -1.0, -1.0,  -1.0, +1.0, -1.0,
-                    //bottom
-                    -1.0, -1.0, +1.0,  -1.0, -1.0, -1.0,  +1.0, -1.0, +1.0,
-                    +1.0, -1.0, +1.0,  -1.0, -1.0, -1.0,  +1.0, -1.0, -1.0
+                    //pion
+                    -1.0, +1.0, 0.0,   -0.5, +1.0, 0.0,    -0.5, -1.0, 0.0, //1
+                    -1.0, +1.0, 0.0,   -1.0, -1.0, 0.0,   -0.5, -1.0, 0.0, //2
+                    //gorna kreska
+                    -0.5, 0.25, 0.0,    +0.25, +1.0, 0.0,   -0.5, -0.25, 0.0, //3
+                    +0.25, +1.0, 0.0,   -0.5, -0.25, 0.0,   +0.25, +0.5, 0.0, //4
+                    //dolna kreska
+                    -0.5, -0.25, 0.0,   -0.25, 0.0, 0.0,    +0.25, -1.0, 0.0, //5
+                    +0.25, -1.0, 0.0,   -0.25, 0.0, 0.0,    +0.25, -0.5, 0.0 //6
                 ]
 
                 //Wgranie danych do GPU
@@ -98,8 +85,8 @@
 
                 let angle = 45.0; //macierz transformacji świata - położenie kamery
                 let uMVMatrix = [
-                    Math.cos(angle*Math.PI/180.0),  -Math.sin(angle*Math.PI/180.0), 0,  0, //macierz rotacji
-                    Math.sin(angle*Math.PI/180.0),  Math.cos(angle*Math.PI/180.0),  0,  0,
+                    Math.cos(angle*Math.PI/180.0),  -Math.sin(angle*Math.PI/180.0), Math.sin(angle*Math.PI/180.0),  0, //macierz rotacji
+                    Math.sin(angle*Math.PI/180.0),  Math.cos(angle*Math.PI/180.0),  Math.cos(angle*Math.PI/180.0),  0,
                     0,0,1,0,
                     0,0,-10,1 //położenie kamery
                 ];
@@ -122,11 +109,4 @@
                 gl.vertexAttribPointer(gl.getAttribLocation(shaderProgram, "aVertexPosition"), vertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
                 gl.drawArrays(gl.TRIANGLES, 0, vertexPositionBuffer.numItems*vertexPositionBuffer.itemSize); //Faktyczne wywołanie rendrowania
-            }          
-        </script>
-    </head>
-
-    <body onload="startGL()">
-        <canvas id="canvas3D" width="640" height="480" style="border: solid black 1px"></canvas>
-    </body>
-</html>
+            }
