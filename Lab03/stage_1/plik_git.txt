@@ -1,0 +1,3 @@
+Pliki git to:
+krystian.html
+script.js
