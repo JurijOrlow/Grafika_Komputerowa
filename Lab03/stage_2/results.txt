@@ -1,0 +1,22 @@
+function matrixMul(mat1, mat2)
+{
+  finalMatrix = [
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0
+  ]
+
+  for(let i = 0; i < 4; i ++)
+  {
+    for(let j = 0; j < 4; j++)
+    {
+      finalMatrix[i*4+j] = 0.0;
+      for(let k = 0; k < 4; k++)
+      {
+        finalMatrix[i*4+j] += mat1[i*4+k] * mat2[k*4+j];
+      }
+    }
+  }
+  return finalMatrix;
+}
