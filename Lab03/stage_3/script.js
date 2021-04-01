@@ -3,9 +3,13 @@ var shaderProgram;
 var uPMatrix;
 var vertexPositionBuffer;
 var vertexColorBuffer;
+let uMVMatrix = null;
+let angleX = 0.0;
+let angleY = 0.0;
+let angleZ = 0.0;
+
 function startGL()
 {
-  alert("StartGL");
   let canvas = document.getElementById("canvas3D"); //wyszukanie obiektu
   gl = canvas.getContext("experimental-webgl"); //pobranie kontekstu OpenGL z obiektu
   gl.viewportWidth = canvas.width;
@@ -134,81 +138,52 @@ function startGL()
     0,                              0,                      -(zFar+zNear)/(zFar-zNear),     -1,
     0,                              0,                      -(2*zFar*zNear)/(zFar-zNear),   0
   ]; //macierz projekcji
+
+  uMVMatrix = [
+    1,0,0,0, //Macierz jednostkowa
+    0,1,0,0,
+    0,0,1,0,
+    0,0,0,1
+  ];
+    
+  let uMVRotZ = [
+    +Math.cos(angleZ*Math.PI/180.0),+Math.sin(angleZ*Math.PI/180.0),0,0,
+    -Math.sin(angleZ*Math.PI/180.0),+Math.cos(angleZ*Math.PI/180.0),0,0,
+    0,0,1,0,
+    0,0,0,1
+  ];
+    
+  let uMVRotY = [
+    +Math.cos(angleY*Math.PI/180.0),0,-Math.sin(angleY*Math.PI/180.0),0,
+    0,1,0,0,
+    +Math.sin(angleY*Math.PI/180.0),0,+Math.cos(angleY*Math.PI/180.0),0,
+    0,0,0,1
+  ];
+    
+  let uMVRotX = [
+    1,0,0,0,
+    0,+Math.cos(angleX*Math.PI/180.0),+Math.sin(angleX*Math.PI/180.0),0,
+    0,-Math.sin(angleX*Math.PI/180.0),+Math.cos(angleX*Math.PI/180.0),0,
+    0,0,0,1
+  ];
+    
+  let uMVTranslateZ = [
+    1,0,0,0,
+    0,1,0,0,
+    0,0,1,0,
+    0,0,tz,1
+  ];
+  
+  uMVMatrix = matrixMul(uMVMatrix,uMVRotX);
+  uMVMatrix = matrixMul(uMVMatrix,uMVRotY);
+  uMVMatrix = matrixMul(uMVMatrix,uMVRotZ);
+  uMVMatrix = matrixMul(uMVMatrix,uMVTranslateZ);
+
   Tick();
 }
 
-//macierz transformacji świata - położenie kamery
-let angleX = 0.0;
-let angleY = 0.0;
-let angleZ = 0.0;
-let Tz = 0.0;
-let Ty = 1;
-let Tx = 0.0;
-
-let uMVMatrix = [
-  1, 0, 0, 0,
-  0, 1, 0, 0,
-  0, 0, 1, 0,
-  0, 0, 0, 1
-];
-
-let rotateX = [
-  1, 0, 0, 0, //macierz rotacji
-  0, Math.cos(angleX*Math.PI/180.0), -Math.sin(angleX*Math.PI/180.0), 0,
-  0, Math.sin(angleX*Math.PI/180.0), Math.cos(angleX*Math.PI/180.0), 0,
-  0, 0, 0, 1
-];
-let rotateY = [
-  Math.cos(angleY*Math.PI/180.0), 0, Math.sin(angleY*Math.PI/180.0), 0, //macierz rotacji
-  0, 1, 0, 0,
-  -Math.sin(angleY*Math.PI/180.0), 0, Math.cos(angleY*Math.PI/180.0), 0,
-  0, 0, 0, 1
-];
-let rotateZ = [
-  Math.cos(angleZ*Math.PI/180.0),  -Math.sin(angleZ*Math.PI/180.0), 0,  0, //macierz rotacji
-  Math.sin(angleZ*Math.PI/180.0),  Math.cos(angleZ*Math.PI/180.0),  0,  0,
-  0, 0, 1, 0,
-  0, 0, 0, 1
-];
-
-let rotateY1deg = [
-  Math.cos(1.0*Math.PI/180.0), 0, Math.sin(1.0*Math.PI/180.0), 0, //macierz rotacji
-  0, 1, 0, 0,
-  -Math.sin(1.0*Math.PI/180.0), 0, Math.cos(1.0*Math.PI/180.0), 0,
-  0, 0, 0, 1
-];
-
-let OX = [
-  uMVMatrix[0], uMVMatrix[4], uMVMatrix[8]
-]
-let OY = [
-  uMVMatrix[1], uMVMatrix[5], uMVMatrix[9]
-]
-
-let TX = [
-  
-]
-
-let translationMatrix = [
-
-
-]
-
 function Tick()
 {
-
-  
-
-  uMVMatrix = matrixMul(uMVMatrix, rotateY1deg);
-  /*uMVMatrix = matrixMul(uMVMatrix, translateZ);
-  uMVMatrix = matrixMul(uMVMatrix, rotateZ);
-  uMVMatrix = matrixMul(uMVMatrix, rotateX);
-  uMVMatrix = matrixMul(uMVMatrix, rotateY);
-  uMVMatrix = matrixMul(uMVMatrix, translateX);
-  uMVMatrix = matrixMul(uMVMatrix, translateY);*/
-  
-
-
   //Render sceny
   gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
   gl.clearColor(0.1725, 0.1725, 0.1725, 1.0); //wyczyszczenie obrazu kolorem czerwonym
@@ -258,28 +233,48 @@ function matrixMul(mat1, mat2)
 function pressedKey(e)
 {
   //alert(e.keyCode);
-  if(e.keyCode == 73) 
-  {
-    Tz = Tz + 0.1; //Klawisz W
-  }
-  if(e.keyCode == 75) 
-  {
-    Tz = Tz - 0.1; //Klawisz S
-  }
-  if(e.keyCode == 74) 
-  {
-    Tx = Tx + 0.1; //Klawisz J
-  }
-  if(e.keyCode == 76) 
-  {
-    Tx = Tx - 0.1; //Klawisz L
-  }
-  if(e.keyCode == 81) 
-  {
-    angleY = angleY + 5.0; //Klawisz Q
-  }
-  if(e.keyCode == 69) 
-  {
-    angleY = angleY - 5.0; //Klawisz E
-  }
+  if(e.keyCode==68) {
+    angleY=angleY+1.0;
+    const stepAngle = 1;
+    let rotationYAxis = [
+    +Math.cos(stepAngle*Math.PI/180.0),0,-Math.sin(stepAngle*Math.PI/180.0),0,
+    0,1,0,0,
+    +Math.sin(stepAngle*Math.PI/180.0),0,+Math.cos(stepAngle*Math.PI/180.0),0,
+    0,0,0,1
+    ];
+    uMVMatrix = MatrixMul(uMVMatrix,rotationYAxis);
+  } //D
+  
+  if(e.keyCode==65) {
+    angleY=angleY-1.0;
+    const stepAngle = -1;
+    let rotationYAxis = [
+    +Math.cos(stepAngle*Math.PI/180.0),0,-Math.sin(stepAngle*Math.PI/180.0),0,
+    0,1,0,0,
+    +Math.sin(stepAngle*Math.PI/180.0),0,+Math.cos(stepAngle*Math.PI/180.0),0,
+    0,0,0,1
+    ];
+    uMVMatrix = MatrixMul(uMVMatrix,rotationYAxis);
+  } //A
+
+  if(e.keyCode==87)
+ {
+    angleX=angleX+1.0;
+    //Ekstrakcja głownych kierunków zgodnie z bierzącą macierzą rotacji 
+    let xAxis = [uMVMatrix[0],uMVMatrix[4],uMVMatrix[ 8]];
+    let yAxis = [uMVMatrix[1],uMVMatrix[5],uMVMatrix[ 9]];
+    let zAxis = [uMVMatrix[2],uMVMatrix[6],uMVMatrix[10]];
+    //Dopasowanie rozmiaru kroku
+    let stepSize = 0.01;
+    zAxis = [stepSize*zAxis[0],stepSize*zAxis[1],stepSize*zAxis[2]];
+    //Macierz 
+    const translationZAxis = [
+    1.0,0.0,0.0,0.0,
+    0.0,1.0,0.0,0.0,
+    0.0,0.0,1.0,0.0,
+    zAxis[0],zAxis[1],zAxis[2],1.0
+    ];
+
+    uMVMatrix = MatrixMul(uMVMatrix,translationZAxis);
+ } //W
 }
