@@ -7,6 +7,9 @@ let uMVMatrix = null;
 let angleX = 0.0;
 let angleY = 0.0;
 let angleZ = 0.0;
+let tz = 0.0;
+let ty = -2.0;
+let tx = 0.0;
 
 function startGL()
 {
@@ -138,46 +141,46 @@ function startGL()
     0,                              0,                      -(zFar+zNear)/(zFar-zNear),     -1,
     0,                              0,                      -(2*zFar*zNear)/(zFar-zNear),   0
   ]; //macierz projekcji
-
+  
   uMVMatrix = [
     1,0,0,0, //Macierz jednostkowa
     0,1,0,0,
     0,0,1,0,
     0,0,0,1
-  ];
-    
-  let uMVRotZ = [
+    ];
+
+    let uMVRotZ = [
     +Math.cos(angleZ*Math.PI/180.0),+Math.sin(angleZ*Math.PI/180.0),0,0,
     -Math.sin(angleZ*Math.PI/180.0),+Math.cos(angleZ*Math.PI/180.0),0,0,
     0,0,1,0,
     0,0,0,1
-  ];
-    
-  let uMVRotY = [
+    ];
+
+    let uMVRotY = [
     +Math.cos(angleY*Math.PI/180.0),0,-Math.sin(angleY*Math.PI/180.0),0,
     0,1,0,0,
     +Math.sin(angleY*Math.PI/180.0),0,+Math.cos(angleY*Math.PI/180.0),0,
     0,0,0,1
-  ];
-    
-  let uMVRotX = [
+    ];
+
+    let uMVRotX = [
     1,0,0,0,
     0,+Math.cos(angleX*Math.PI/180.0),+Math.sin(angleX*Math.PI/180.0),0,
     0,-Math.sin(angleX*Math.PI/180.0),+Math.cos(angleX*Math.PI/180.0),0,
     0,0,0,1
-  ];
-    
-  let uMVTranslateZ = [
+    ];
+
+    let uMVTranslateZ = [
     1,0,0,0,
     0,1,0,0,
     0,0,1,0,
-    0,0,tz,1
-  ];
-  
-  uMVMatrix = matrixMul(uMVMatrix,uMVRotX);
-  uMVMatrix = matrixMul(uMVMatrix,uMVRotY);
-  uMVMatrix = matrixMul(uMVMatrix,uMVRotZ);
-  uMVMatrix = matrixMul(uMVMatrix,uMVTranslateZ);
+    tx,ty,tz,1
+    ];
+
+    uMVMatrix = MatrixMul(uMVMatrix,uMVRotX);
+    uMVMatrix = MatrixMul(uMVMatrix,uMVRotY);
+    uMVMatrix = MatrixMul(uMVMatrix,uMVRotZ);
+    uMVMatrix = MatrixMul(uMVMatrix,uMVTranslateZ);
 
   Tick();
 }
@@ -207,7 +210,7 @@ function Tick()
   setTimeout(Tick, 10);
 }
 
-function matrixMul(mat1, mat2)
+function MatrixMul(mat1, mat2)
 {
   finalMatrix = [
     0, 0, 0, 0,
@@ -232,6 +235,10 @@ function matrixMul(mat1, mat2)
 
 function pressedKey(e)
 {
+  //Ekstrakcja głownych kierunków zgodnie z bierzącą macierzą rotacji 
+  let xAxis = [uMVMatrix[0],uMVMatrix[4],uMVMatrix[ 8]];
+  let yAxis = [uMVMatrix[1],uMVMatrix[5],uMVMatrix[ 9]];
+  let zAxis = [uMVMatrix[2],uMVMatrix[6],uMVMatrix[10]];
   //alert(e.keyCode);
   if(e.keyCode==68) {
     angleY=angleY+1.0;
@@ -259,11 +266,24 @@ function pressedKey(e)
 
   if(e.keyCode==87)
  {
-    angleX=angleX+1.0;
-    //Ekstrakcja głownych kierunków zgodnie z bierzącą macierzą rotacji 
-    let xAxis = [uMVMatrix[0],uMVMatrix[4],uMVMatrix[ 8]];
-    let yAxis = [uMVMatrix[1],uMVMatrix[5],uMVMatrix[ 9]];
-    let zAxis = [uMVMatrix[2],uMVMatrix[6],uMVMatrix[10]];
+    tz=tz+1.0; //W
+    //Dopasowanie rozmiaru kroku
+    let stepSize = 0.01;
+    zAxis = [stepSize*zAxis[0],stepSize*zAxis[1],stepSize*zAxis[2]];
+    //Macierz 
+    const translationZAxis = [
+    1.0,0.0,0.0,0.0,
+    0.0,1.0,0.0,0.0,
+    0.0,0.0,1.0,0.0,
+    zAxis[0],zAxis[1],zAxis[2],1.0
+    ];
+
+    uMVMatrix = MatrixMul(uMVMatrix,translationZAxis);
+ } //W
+
+ if(e.keyCode==83)
+ {
+    tz=tz-1.0; //S
     //Dopasowanie rozmiaru kroku
     let stepSize = 0.01;
     zAxis = [stepSize*zAxis[0],stepSize*zAxis[1],stepSize*zAxis[2]];
